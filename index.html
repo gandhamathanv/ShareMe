@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat App</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #messages li {
+        margin-bottom: 10px;
+      }
+      input {
+        padding: 10px;
+      }
+      .chat-box {
+        position: relative;
+        overflow: scroll;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px #ddd;
+        width: 400px;
+        height: 95vh;
+        /* height: fit-content; */
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .chat-box li {
+        margin: 10px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-box .chat-message {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 10px;
+        max-width: 75%;
+      }
+
+      .chat-box .chat-message:hover {
+        background-color: #f9f9f9;
+      }
+
+      .chat-box .chat-sender {
+        color: #aaa;
+        font-size: 12px;
+        margin: 5px 0;
+      }
+
+      .chat-box button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .chat-box button:hover {
+        background-color: #3e8e41;
+      }
+
+      .chat-box input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        margin: 10px;
+        font-size: 14px;
+      }
+
+      .chat-box input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+        margin: 10px;
+      }
+
+      .chat-box input[type="submit"]:hover {
+        background-color: #3e8e41;
+      }
+      .chat {
+        display: flex;
+        flex-direction: column;
+        border: 2px solid black;
+        margin: 5px;
+        padding: 5px;
+      }
+      .chat-items {
+        display: flex;
+        justify-content: space-between;
+      }
+      .chat-box form {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        display: flex;
+        padding: 5px;
+      }
+      form input {
+        width: 80%;
+      }
+      form button {
+        width: 20%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-box">
+      <div id="messages"></div>
+      <form>
+        <input id="m" autocomplete="off" /><button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="48"
+            viewBox="0 96 960 960"
+            width="48"
+          >
+            <path
+              d="M120 896V256l760 320-760 320Zm60-93 544-227-544-230v168l242 62-242 60v167Zm0 0V346v457Z"
+            />
+          </svg>
+        </button>
+      </form>
+    </div>
+    <script>
+      const messageContainer = document.getElementById("messages");
+      const newNode = (message, name) => {
+        const chat = document.createElement("div");
+        chat.setAttribute("class", "chat");
+        const chatContent = document.createElement("div");
+        chatContent.setAttribute("class", "chat-content");
+        chatContent.innerText = message;
+        const chatItems = document.createElement("div");
+        chatItems.setAttribute("class", "chat-items");
+        const chatSender = document.createElement("div");
+        chatSender.setAttribute("class", "chat-sender");
+        chatSender.innerText = name;
+        const button = document.createElement("button");
+        button.innerText = "copy";
+        button.addEventListener("click", () => {
+          navigator.clipboard
+            .writeText(message)
+            .then(() => {
+              console.log("Text copied to clipboard");
+            })
+            .catch((err) => {
+              console.error("Failed to copy text: ", err);
+            });
+        });
+        chatItems.appendChild(chatSender);
+        chatItems.appendChild(button);
+        console.log(chatItems);
+        chat.appendChild(chatContent);
+        chat.appendChild(chatItems);
+        messageContainer.appendChild(chat);
+      };
+
+      let name = prompt("Please enter your name:");
+      const socket = io();
+      $("form").submit((e) => {
+        e.preventDefault(); // Prevent form submission
+        const msg = $("#m").val();
+        socket.emit("chat message", msg, { name });
+        $("#m").val("");
+        return false;
+      });
+
+      socket.on("chat message", ({ msg, user }) => {
+        newNode(msg, user.name);
+        console.log(user);
+      });
+    </script>
+  </body>
+</html>
