@@ -128,7 +128,7 @@
     <div class="chat-box">
       <div id="messages"></div>
       <form>
-        <input id="m" autocomplete="off" /><button>
+        <input id="m" autocomplete="off" /><button id="send">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="48"
@@ -177,7 +177,7 @@
 
       let name = prompt("Please enter your name:");
       const socket = io();
-      $("form").submit((e) => {
+      $("#send").click((e) => {
         e.preventDefault(); // Prevent form submission
         const msg = $("#m").val();
         socket.emit("chat message", msg, { name });
