@@ -178,6 +178,7 @@
       let name = prompt("Please enter your name:");
       const socket = io();
       $("#send").click((e) => {
+        console.log("hello");
         e.preventDefault(); // Prevent form submission
         const msg = $("#m").val();
         socket.emit("chat message", msg, { name });
